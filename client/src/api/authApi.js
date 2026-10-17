@@ -1,8 +1,14 @@
 
 import axios from "axios";
 
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
+  baseURL: `${BASE_URL.replace(/\/+$/, "")}/api/auth`,
+  headers: {
+    Accept: "application/json",
+  },
 });
 
 // Register
@@ -37,7 +43,6 @@ export const updateUserProfile = async (userData) => {
   const response = await API.put("/profile", userData, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
     },
   });
 
@@ -51,7 +56,9 @@ export const updateUserProfile = async (userData) => {
 // Upload profile picture
 export const uploadProfilePicture = async (imageFile) => {
   if (!(imageFile instanceof File)) {
-    throw new Error("The selected image file is missing. Please select it again.");
+    throw new Error(
+      "The selected image file is missing. Please select it again."
+    );
   }
 
   const token = localStorage.getItem("token");
@@ -62,8 +69,6 @@ export const uploadProfilePicture = async (imageFile) => {
 
   const formData = new FormData();
   formData.append("avatar", imageFile, imageFile.name);
-
-  console.log("Uploading file:", imageFile.name, imageFile.type, imageFile.size);
 
   const response = await API.post("/profile/avatar", formData, {
     headers: {
